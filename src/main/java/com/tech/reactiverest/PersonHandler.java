@@ -1,20 +1,18 @@
 package com.tech.reactiverest;
 
 
-        import org.springframework.beans.factory.annotation.Autowired;
-        import org.springframework.http.server.reactive.ServerHttpResponse;
-        import org.springframework.stereotype.Component;
-        import org.springframework.web.reactive.function.BodyInserter;
-        import org.springframework.web.reactive.function.server.ServerRequest;
-        import org.springframework.web.reactive.function.server.ServerResponse;
-        import org.springframework.web.util.UriComponentsBuilder;
-        import reactor.core.publisher.Mono;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
-        import java.util.UUID;
+import java.util.UUID;
 
-        import static org.springframework.http.MediaType.APPLICATION_JSON;
-        import static org.springframework.web.reactive.function.BodyInserters.fromPublisher;
-        import static org.springframework.web.reactive.function.server.ServerResponse.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.web.reactive.function.BodyInserters.fromPublisher;
+import static org.springframework.web.reactive.function.server.ServerResponse.*;
 
 @Component
 public class PersonHandler {
@@ -24,6 +22,10 @@ public class PersonHandler {
 
     public PersonHandler(PersonRepository personManager) {
         this.personManager = personManager;
+    }
+    public String getxx() {
+
+        return personManager==null?"null":"nc";
     }
 
     public Mono<ServerResponse> get(ServerRequest request) {
@@ -35,6 +37,11 @@ public class PersonHandler {
     }
 
     public Mono<ServerResponse> all(ServerRequest request) {
+        System.out.println(request.hashCode());
+        return ok().contentType(APPLICATION_JSON)
+                .body(fromPublisher(personManager.findAll(), Person.class));
+    }
+    public Mono<ServerResponse> all2(ServerRequest request) {
         return ok().contentType(APPLICATION_JSON)
                 .body(fromPublisher(personManager.findAll(), Person.class));
     }
