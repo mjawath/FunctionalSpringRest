@@ -1,64 +1,37 @@
 package com.tech.reactiverest;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ResolvableType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromObject;
 import static org.springframework.web.reactive.function.BodyInserters.fromPublisher;
-import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
-import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
-@Component
-public class GenericReactiveRestHandler<T extends BaseEntity>  {
-
+public class GenericReactiveRestHandler2<T extends BaseEntity>  {
 
 
     private BaseRxService<T,String> service;
-
     private Class<T> classEntity;
 
-    public GenericReactiveRestHandler() {
-        try {
-//            classEntity=ResolvableType.forClass(getClass()).getGeneric(0).resolve();
-//            this.classEntity = (Class<T>) ((ParameterizedType) getClass()
-//                    .getGenericSuperclass()).getActualTypeArguments()[0];
-
-        }catch (Exception e){
-            e.printStackTrace();
-
-        }
-    }
-    public GenericReactiveRestHandler(Class classEntity,BaseRxService<T,String> service) {
-        try {
-            this.classEntity=classEntity;
-            this.service=service;
-        }catch (Exception e){
-            e.printStackTrace();
-
-        }
+    public GenericReactiveRestHandler2() {
+        this.classEntity = (Class<T>) ((ParameterizedType) getClass()
+                .getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
     public Mono<ServerResponse> get(ServerRequest request) {
         final String id = request.pathVariable("id");
-        final Mono<T> retVal = service.findById(id);
+        final Mono retVal = service.findById(id);
         return retVal
                 .flatMap(p -> ok().contentType(APPLICATION_JSON).body(fromPublisher(retVal, classEntity)))
                 .switchIfEmpty(notFound().build());
     }
 
     public Mono<ServerResponse> all(ServerRequest request) {
-
         return ok().contentType(APPLICATION_JSON)
                 .body(fromPublisher(service.findAll(), classEntity));
     }

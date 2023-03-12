@@ -2,12 +2,20 @@ package com.tech.reactiverest;
 
 import org.reactivestreams.Publisher;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class BaseRxServiceImpl implements BaseRxService{
+//@Component
+public class BaseRxServiceImpl<T extends BaseEntity> implements BaseRxService{
 
     private ReactiveCrudRepository repository;
+
+    private Class<T> cls;
+    public BaseRxServiceImpl(Class<T> cls,ReactiveCrudRepository repository) {
+        this.cls=cls;
+        this.repository=repository;
+    }
 
     public BaseRxServiceImpl(ReactiveCrudRepository repository) {
         this.repository = repository;
@@ -55,8 +63,8 @@ public class BaseRxServiceImpl implements BaseRxService{
     }
 
     @Override
-    public Flux findAll() {
-        return null;
+    public Flux<T> findAll() {
+        return repository.findAll();
     }
 
     @Override

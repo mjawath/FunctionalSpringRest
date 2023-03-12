@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.web.reactive.function.server.*;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -17,7 +18,21 @@ public class Router {
     @Autowired
     ApplicationContext context;
 
+
     @Bean
+    public RouterFunction<ServerResponse> dynamicRoute() {
+        ReactiveCrudRepository repo = context.getBean(ReactiveCrudRepository.class, Product.class);
+        GenericReactiveRestHandlerFactory genericReactiveRestHandlerFactory = new GenericReactiveRestHandlerFactory();
+        GenericReactiveRestHandler<Product> req = genericReactiveRestHandlerFactory.create(Product.class,repo);
+//        GenericReactiveRestHandler<Product> req = productGenericReactiveRestHandler;
+
+        RequestPredicate acceptJson = accept(APPLICATION_JSON);
+        RequestPredicate contentType = contentType(APPLICATION_JSON);
+        RouterFunction<ServerResponse> route = RouterFunctions.route(GET("/")
+                .and(acceptJson), req::all);
+        return RouterFunctions.nest(RequestPredicates.path("/one"), route);
+    }
+        @Bean
     public RouterFunction<ServerResponse> route() {
         PersonHandler handler = (PersonHandler) getForClass();/*load dynamically*/
         String context = "/people";
@@ -35,8 +50,8 @@ public class Router {
                 .andRoute(GET("/country/{country}").and(acceptJson), handler::getByCountry);
 //        route.andRoute(GET(context2).and(acceptJson), handler2::all);
         return RouterFunctions.nest(RequestPredicates.path(context), route)
-                .andNest(RequestPredicates.path(context2), RouterFunctions.route(GET("").and(acceptJson), handler2::all))
-                .andNest(RequestPredicates.path(booking), RouterFunctions.route(GET("").and(acceptJson), getHandler(BookingHandler.class)::all));
+                .andNest(RequestPredicates.path(context2), RouterFunctions.route(GET("").and(acceptJson), handler2::all));
+//                .andNest(RequestPredicates.path(booking), RouterFunctions.route(GET("").and(acceptJson), getHandler(BookingHandler.class)::all));
     }
 
 
@@ -49,4 +64,7 @@ public class Router {
     public <T> T getHandler(Class<T> cls) {
         return context.getBean(cls);
     }
+
+
+
 }
