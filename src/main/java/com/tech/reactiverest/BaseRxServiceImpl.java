@@ -23,12 +23,12 @@ public class BaseRxServiceImpl<T extends BaseEntity> implements BaseRxService{
 
     @Override
     public Mono save(BaseEntity var1) {
-        return null;
+        return repository.save(var1);
     }
 
     @Override
     public Mono save(Mono var1) {
-        return null;
+        return repository.save(var1);
     }
 
 

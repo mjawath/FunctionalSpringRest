@@ -20,11 +20,10 @@ import static org.springframework.web.reactive.function.server.ServerResponse.no
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Component
-public class GenericReactiveRestHandler<T extends BaseEntity>  {
+public class GenericReactiveRestHandler<T extends BaseEntity> {
 
 
-
-    private BaseRxService<T,String> service;
+    private BaseRxService<T, String> service;
 
     private Class<T> classEntity;
 
@@ -34,16 +33,17 @@ public class GenericReactiveRestHandler<T extends BaseEntity>  {
 //            this.classEntity = (Class<T>) ((ParameterizedType) getClass()
 //                    .getGenericSuperclass()).getActualTypeArguments()[0];
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
 
         }
     }
-    public GenericReactiveRestHandler(Class classEntity,BaseRxService<T,String> service) {
+
+    public GenericReactiveRestHandler(Class classEntity, BaseRxService<T, String> service) {
         try {
-            this.classEntity=classEntity;
-            this.service=service;
-        }catch (Exception e){
+            this.classEntity = classEntity;
+            this.service = service;
+        } catch (Exception e) {
             e.printStackTrace();
 
         }
@@ -80,16 +80,13 @@ public class GenericReactiveRestHandler<T extends BaseEntity>  {
 
     public Mono<ServerResponse> post(ServerRequest request) {
         final Mono<T> person = request.bodyToMono(classEntity);
-        Mono<T> savedM = service.save(person);
-        return savedM
-                .flatMap(saved->
-                created((UriComponentsBuilder.fromPath("??? where to get the url for this domain/" + saved.getId()).build().toUri()))
-                        .body(fromObject(saved)));
-//         created(UriComponentsBuilder.fromPath("Todo").build().toUri())
-//                .contentType(APPLICATION_JSON)
-//                .body(
-//                        fromPublisher(
-//                                person.flatMap(service::save), classEntity));
+        final UUID id = UUID.randomUUID();
+
+        return created(UriComponentsBuilder.fromPath("/" + id).build().toUri())
+                .contentType(APPLICATION_JSON)
+                .body(
+                        fromPublisher(
+                                person.flatMap(service::save), classEntity));
     }
 
 
@@ -106,7 +103,6 @@ public class GenericReactiveRestHandler<T extends BaseEntity>  {
 //        return ok().contentType(APPLICATION_JSON)
 //                .body(fromPublisher(service.findById(country), Person.class));
 //    }
-
 
 
 }

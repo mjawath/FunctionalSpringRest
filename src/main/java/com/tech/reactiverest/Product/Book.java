@@ -5,7 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class Product extends BaseEntity {
+public class Book extends BaseEntity {
     @Id
     private String id;
     private String description;
