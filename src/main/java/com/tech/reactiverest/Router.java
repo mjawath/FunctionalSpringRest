@@ -29,16 +29,11 @@ public class Router {
     @Autowired
     ReactiveMongoTemplate template;
 
-
-
-
-
     private <T> MappingMongoEntityInformation<T, String> createEntityInformation(Class<T> cls,ReactiveMongoTemplate mongoTemplate) {
         MongoMappingContext mappingContext = new MongoMappingContext();
         MongoPersistentEntity<T> entity = (MongoPersistentEntity<T>) mappingContext.getPersistentEntity(cls);
         return new MappingMongoEntityInformation<>(entity);
     }
-
 
 //    @Bean
     public RouterFunction<ServerResponse> dynamicRoute(Class cls) {
@@ -67,9 +62,9 @@ public class Router {
     }
         @Bean
     public RouterFunction<ServerResponse> route() {
-        PersonHandler handler = (PersonHandler) getForClass();/*load dynamically*/
+        PersonHandler handler = (PersonHandler) getForClass("one");/*load dynamically*/
         String context = "/people";
-        PersonHandler handler2 = (PersonHandler) getForClass();/*load dynamically*/
+        PersonHandler handler2 = (PersonHandler) getForClass("two");/*load dynamically*/
 
         String context2 = "/people2";
         String booking = "/booking";
@@ -99,9 +94,10 @@ public class Router {
                                 .body(BodyInserters.fromObject("Hello xxxx222!")));
     }
 
-    public Object getForClass() {
+    public Object getForClass(String x) {
         String packageName = Product.class.getPackageName();
-        Object bean = context.getBean(PersonHandler.class);
+        PersonHandler bean = context.getBean(PersonHandler.class);
+        bean.setTest(String.valueOf(Math.random()));
         return bean;
     }
 
